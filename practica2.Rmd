@@ -11,3 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r}
+
+data_cities <- read.csv("data/datos_agregados_ciudades.csv", sep = ';')
+summary(data_cities)
+
+
+```
