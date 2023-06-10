@@ -1,0 +1,13 @@
+---
+title: "PRA 2 - Tipología y ciclo de vida de los datos aula 1"
+author: "Alejandro Zarza Roa"
+date: "2022-05-18"
+output: word_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
