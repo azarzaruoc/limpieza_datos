@@ -4,12 +4,14 @@ author: "Alejandro Zarza Roa"
 date: "2022-05-18"
 output: word_document
 always_allow_html: true
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
 
 ```{r}
 
@@ -18,3 +20,111 @@ summary(data_cities)
 
 
 ```
+
+# Descripción del dataset
+
+**¿Por qué es importante y qué pregunta/problema pretende responder?**
+
+El dataset elegido para el desarrollo de esta práctica es "Ciudades para
+teletrabajar en España", se puede consultar en
+<https://www.kaggle.com/datasets/amerono/ciudades-para-teletrabajar-en-espaa>.
+Este Dataset contiene información sobre diferentes ciudades de España y
+diversas variables relacionadas con su idoneidad para el teletrabajo.
+Estas variables resultan útiles para aquellos que se plantean trabajar
+de forma remota en España.
+
+Los campos que contiene este dataset son:
+
+-   Nombre del municipio (municipios españoles de más de 75.000
+    habitantes)
+
+-   Provincia
+
+-   Comunidad Autónoma
+
+-   Población (fuente de datos: INE, 2022)
+
+-   Kilómetros de carril bici en el municipio por cada 100.000
+    habitantes (fuentes de datos: El País, La Sexta, ayuntamientos)
+
+-   Precios de viviendas en alquiler por metro cuadrado (fuente:
+    Idealista, marzo 2023)
+
+-   Distancia a Madrid en km (fuente: Google Maps)
+
+-   Tiempo medio de viaje en coche a Madrid (fuente: Google Maps)
+
+-   Tiempo medio de viaje en tren o autobús a Madrid (fuente: Google
+    Maps)
+
+-   Distancia a Barcelona en km (fuente: Google Maps)
+
+-   Tiempo medio de viaje en coche a Barcelona (fuente: Google Maps)
+
+-   Tiempo medio de viaje en tren o autobús a Barcelona (fuente: Google
+    Maps)
+
+-   Aeropuerto internacional más cercano (fuentes: AENA, Google Maps)
+
+-   Número de conexiones del aeropuerto internacional más cercano
+    (fuente: AENA)
+
+-   Distancia en km al aeropuerto internacional más cercano (fuente:
+    Google Maps)
+
+-   Temperatura máxima media en ºC (fuente: Weatherspark)
+
+-   Temperatura mínima media en ºC (fuente: Weatherspark)
+
+-   Número de visitantes internacionales (turistas) al año (pendiente de
+    completar)
+
+-   Precio medio de venta de viviendas por metro cuadrado (fuente:
+    Idealista, marzo 2023)
+
+-   Patrimonio de la Humanidad: Si dispone o no de uno o varios
+    Patrimonios (fuente: Wikipedia)
+
+-   Porcentaje de Días con calidad de aire "Buena" (fuente: Ministerio
+    para la Transición Ecológica y Reto Demográfico)
+
+-   Porcentaje de Días con calidad de aire "Razonablemente Buena"
+    (fuente: Ministerio para la Transición Ecológica y Reto Demográfico)
+
+-   Porcentaje de Días con calidad de aire "Regular" (fuente: Ministerio
+    para la Transición Ecológica y Reto Demográfico)
+
+-   Porcentaje de Días con calidad de aire "Desfavorable" (fuente:
+    Ministerio para la Transición Ecológica y Reto Demográfico)
+
+-   Porcentaje de Días con calidad de aire "Muy Desfavorable" (fuente:
+    Ministerio para la Transición Ecológica y Reto Demográfico)
+
+-   Porcentaje de Días con calidad de aire "Extremadamente Desfavorable"
+    (fuente: Ministerio para la Transición Ecológica y Reto Demográfico)
+
+-   Ponderación calidad del aire: Cálculo propio a partir de los 6
+    valores anteriores Horas de sol medias anuales (fuente: AEMET)
+
+Recopilando datos sobre aspectos relevantes como la calidad de vida, la
+conectividad a internet, el costo de vida, la seguridad, el acceso a
+servicios y comodidades, entre otros, el objetivo principal de este
+conjunto de datos es identificar las ciudades en España más propicias
+para el teletrabajo. Mediante el análisis de esta información, los
+teletrabajadores potenciales pueden tomar decisiones informadas sobre
+dónde establecerse o realizar viajes de trabajo, teniendo en cuenta
+factores clave que impactan en su experiencia de trabajo remoto. En
+resumen, este dataset busca proporcionar una guía sólida para aquellos
+que desean encontrar entornos ideales para el teletrabajo en España.
+
+El dataset "Ciudades para teletrabajar en España" no solo ofrece
+información relevante para la elección de ciudades adecuadas para el
+teletrabajo, sino que también desempeña un papel fundamental en la
+comprensión de las necesidades y demandas de los teletrabajadores. Esto
+permite a las autoridades locales, empresas y profesionales adaptar sus
+políticas y servicios para satisfacer estas necesidades de manera
+efectiva. Además, el dataset proporciona una base sólida para realizar
+análisis exhaustivos del impacto económico y social del teletrabajo en
+diferentes regiones de España, lo que contribuye a una toma de
+decisiones más informada en torno al fomento y desarrollo del
+teletrabajo en el país.
