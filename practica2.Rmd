@@ -128,3 +128,104 @@ análisis exhaustivos del impacto económico y social del teletrabajo en
 diferentes regiones de España, lo que contribuye a una toma de
 decisiones más informada en torno al fomento y desarrollo del
 teletrabajo en el país.
+
+# Integración y selección de los datos de interés a analizar
+
+En este punto, se realiza un descarte de las variables que no sean de interés 
+
+-   Tiempo medio de viaje en coche a Madrid (fuente: Google Maps)
+
+-   Tiempo medio de viaje en tren o autobús a Madrid (fuente: Google
+    Maps)
+    
+-   Tiempo medio de viaje en coche a Barcelona (fuente: Google Maps)
+
+-   Tiempo medio de viaje en tren o autobús a Barcelona (fuente: Google
+    Maps)
+    
+Se descartan estas cuatro ya que son variables que se pueden deducir aproximadamente en función de la distancia en kilómetros, ya que por lo general las comunicaciones son similares.
+
+# Limpieza de los datos
+
+ Gestión de ceros o elementos vacíos
+ 
+```{r}
+# Verificar si hay valores nulos por columna en el dataset
+nulos <- colSums(data_cities == "N/D", na.rm = TRUE)
+
+# Imprimir los resultados
+print(nulos)
+
+```
+
+
+Las columnas que tienen valores N/D son Carril.Bici, Precios.alquiler, Precio.medio.vivienda..EUR.m2.,  X..días.calidad.del.aire.Buena, X..días.calidad.del.aire.Razonablemente.Buena, X..días.calidad.del.aire.Regular,X..días.calidad.del.aire.Desfavorable,X..días.calidad.del.aire.Muy.Desfavorable,X..días.calidad.del.aire.Extremadamente.Desfavorable,Ponderación.calidad.del.aire, Horas.de.Sol.medias.anuales.
+
+Debido a la importancia que le voy a dar en este estudio, voy a descartar las ciudades de las que no tenemos métricas acerca de la calidad del aire.
+
+```{r}
+
+# Eliminar filas con valor "N/D" en la columna "Ponderación.calidad.del.aire"
+data_cities <- subset(data_cities, !Ponderación.calidad.del.aire %in% "N/D")
+
+# Verificar si hay valores nulos por columna en el dataset
+nulos <- colSums(data_cities == "N/D", na.rm = TRUE)
+
+# Imprimir los resultados
+print(nulos)
+
+```
+
+Cambio las ciudades que no tienen datos de los kilómetros de carril bici por cero.
+
+```{r}
+
+data_cities$Carril.Bici <- ifelse(data_cities$Carril.Bici == "N/D", 0, data_cities$Carril.Bici)
+
+```
+
+Ahora únicamente quedaria gestionar los valores de los precios de la vivienda, del alquiler y las horas de sol medias anuales. Para ello, voy a hacer una media entre los valores de la misma Provincia.
+
+```{r}
+
+# Reemplazar los valores "N/D" por el precio medio por Provincia
+data_cities$Precios.alquiler <- with(data_cities, ifelse(Precios.alquiler == "N/D",
+                                                ave(as.numeric(Precios.alquiler),
+                                                    Provincia,
+                                                    FUN = function(x) median(x, na.rm = TRUE)),
+                                                Precios.alquiler))
+
+data_cities$Precio.medio.vivienda..EUR.m2. <- with(data_cities, ifelse(Precio.medio.vivienda..EUR.m2. == "N/D",
+                                              ave(as.numeric(Precio.medio.vivienda..EUR.m2.),
+                                                  Provincia,
+                                                  FUN = function(x) median(x, na.rm = TRUE)),
+                                              Precio.medio.vivienda..EUR.m2.))
+
+
+data_cities$Horas.de.Sol.medias.anuales <- with(data_cities, ifelse(Horas.de.Sol.medias.anuales == "N/D",
+                                              ave(as.numeric(Horas.de.Sol.medias.anuales),
+                                                  Provincia,
+                                                  FUN = function(x) median(x, na.rm = TRUE)),
+                                              Horas.de.Sol.medias.anuales))
+
+# Verificar si hay valores nulos por columna en el dataset
+nulos <- colSums(data_cities == "N/D", na.rm = TRUE)
+
+# Imprimir los resultados
+print(nulos)
+
+```
+
+# Gestión de valores extremos
+
+
+
+# 4. Análisis de los datos.
+4.1. Selección de los grupos de datos que se quieren analizar/comparar (p.
+ej., si se van a comparar grupos de datos, ¿cuáles son estos grupos y
+qué tipo de análisis se van a aplicar?)
+4.2. Comprobación de la normalidad y homogeneidad de la varianza.
+4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos.
+En función de los datos y el objetivo del estudio, aplicar pruebas de
+contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos
+tres métodos de análisis diferentes.
