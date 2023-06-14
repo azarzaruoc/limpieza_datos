@@ -145,6 +145,19 @@ En este punto, se realiza un descarte de las variables que no sean de interés
     
 Se descartan estas cuatro ya que son variables que se pueden deducir aproximadamente en función de la distancia en kilómetros, ya que por lo general las comunicaciones son similares.
 
+Debido a la ausencia de valores se descarta también el Número de visitantes internacionales (turistas) al año. Por último, también eliminaremos Patrimonio de la Humanidad, debido a que no resulta de interés.
+
+```{r}
+            
+# Especifica las columnas que deseas eliminar
+columnas_a_borrar <- c("Tiempo.medio..de.viaje.a.Madrid..en.coche", "Tiempo.medio.de.viaje.a.Madrid.en.tren.o.autobús", "Tiempo.medio..de.viaje.a.Barcelona..en.coche", "Tiempo.medio.de.viaje.a.Barcelona.en.tren.o.autobús", "Número.de.visitantes.internacionales.al.año", "Patrimonio.de.la.Humanidad")
+
+data_cities <- data_cities[, -which(names(data_cities) %in% columnas_a_borrar)]
+#data_cities <- subset(data_cities, select = -columnas_a_borrar)
+summary(data_cities)
+
+```
+
 # Limpieza de los datos
 
  Gestión de ceros o elementos vacíos
@@ -192,21 +205,27 @@ Ahora únicamente quedaria gestionar los valores de los precios de la vivienda, 
 data_cities$Precios.alquiler <- with(data_cities, ifelse(Precios.alquiler == "N/D",
                                                 ave(as.numeric(Precios.alquiler),
                                                     Provincia,
-                                                    FUN = function(x) median(x, na.rm = TRUE)),
+                                                    FUN = function(x) mean(x, na.rm = TRUE)),
                                                 Precios.alquiler))
 
 data_cities$Precio.medio.vivienda..EUR.m2. <- with(data_cities, ifelse(Precio.medio.vivienda..EUR.m2. == "N/D",
                                               ave(as.numeric(Precio.medio.vivienda..EUR.m2.),
                                                   Provincia,
-                                                  FUN = function(x) median(x, na.rm = TRUE)),
+                                                  FUN = function(x) mean(x, na.rm = TRUE)),
                                               Precio.medio.vivienda..EUR.m2.))
 
 
+
 data_cities$Horas.de.Sol.medias.anuales <- with(data_cities, ifelse(Horas.de.Sol.medias.anuales == "N/D",
-                                              ave(as.numeric(Horas.de.Sol.medias.anuales),
-                                                  Provincia,
-                                                  FUN = function(x) median(x, na.rm = TRUE)),
-                                              Horas.de.Sol.medias.anuales))
+                                            ave(as.numeric(Horas.de.Sol.medias.anuales),
+                                              Provincia,
+                                              FUN = function(x) mean(x[x > 100], na.rm=TRUE)),
+                                            ifelse(as.numeric(Horas.de.Sol.medias.anuales) < 100,
+                                            ave(as.numeric(Horas.de.Sol.medias.anuales),
+                                              Provincia,
+                                              FUN = function(x) mean(x[x > 100], na.rm = TRUE)),
+                                              Horas.de.Sol.medias.anuales)))
+
 
 # Verificar si hay valores nulos por columna en el dataset
 nulos <- colSums(data_cities == "N/D", na.rm = TRUE)
@@ -218,9 +237,55 @@ print(nulos)
 
 # Gestión de valores extremos
 
+Como hemos visto al inicio, muchos de los valores que deberían ser numéricos están puestos de tipo character. Por lo tanto, antes de gestionar los valores extremos vamos a transformar dichas variables.
+
+```{r}     
+          
+data_cities$Carril.Bici <- as.numeric(data_cities$Carril.Bici)
+data_cities$Precios.alquiler <- as.numeric(data_cities$Precios.alquiler)
+data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km <- as.numeric(data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km)
+data_cities$Temperatura.mínima.media..ºC. <- as.numeric(data_cities$Temperatura.mínima.media..ºC.)
+data_cities$Precio.medio.vivienda..EUR.m2. <- as.numeric(data_cities$Precio.medio.vivienda..EUR.m2.)
+data_cities$X..días.calidad.del.aire.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Buena)
+data_cities$X..días.calidad.del.aire.Razonablemente.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Razonablemente.Buena)
+data_cities$X..días.calidad.del.aire.Regular <- as.numeric(data_cities$X..días.calidad.del.aire.Regular)
+data_cities$X..días.calidad.del.aire.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Desfavorable)
+data_cities$X..días.calidad.del.aire.Muy.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Muy.Desfavorable)
+data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable)
+data_cities$Ponderación.calidad.del.aire <- as.numeric(data_cities$Ponderación.calidad.del.aire)
+data_cities$Horas.de.Sol.medias.anuales <- as.numeric(data_cities$Horas.de.Sol.medias.anuales)
+
+summary(data_cities)
+
+```
+
+```{r}
+
+# Obtener las variables numéricas del dataset
+variables_numericas <- sapply(data_cities, is.numeric)
+
+# Mostrar las variables numéricas
+nombres_variables_numericas <- names(variables_numericas[variables_numericas])
+print(nombres_variables_numericas)
 
 
-# 4. Análisis de los datos.
+# Crear boxplots para cada variable numérica
+for (i in 1:length(nombres_variables_numericas)) {
+  variable <- nombres_variables_numericas[i]
+  boxplot(data_cities[,variable], main = variable, ylab = "")
+}
+
+
+
+```
+
+Se observan algunos valores que se encuentran bastante fuera de los diagramas. Sin embargo esto se debe a diversos factores como la diferencia de habitantes en una población como Barcelona o Madrid con los municipios más pequeños, ya que se han considerado ciudades con un valor mínimo de 75000 habitantes.
+
+Por otro lado también tenemos diferencias muy sifnificativas en las distancias a Barcelona y a Madrid ya que también se uncluyen poblaciones en Islas Canarias o Ceuta.
+
+
+
+# Análisis de los datos.
 4.1. Selección de los grupos de datos que se quieren analizar/comparar (p.
 ej., si se van a comparar grupos de datos, ¿cuáles son estos grupos y
 qué tipo de análisis se van a aplicar?)
