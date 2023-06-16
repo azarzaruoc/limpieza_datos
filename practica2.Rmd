@@ -14,8 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+library(car)
 
-data_cities <- read.csv("data/datos_agregados_ciudades.csv", sep = ';')
+
+data_cities <- read.csv("data/datos_agregados_ciudades.csv")
 summary(data_cities)
 
 
@@ -174,6 +176,32 @@ print(nulos)
 
 Las columnas que tienen valores N/D son Carril.Bici, Precios.alquiler, Precio.medio.vivienda..EUR.m2.,  X..días.calidad.del.aire.Buena, X..días.calidad.del.aire.Razonablemente.Buena, X..días.calidad.del.aire.Regular,X..días.calidad.del.aire.Desfavorable,X..días.calidad.del.aire.Muy.Desfavorable,X..días.calidad.del.aire.Extremadamente.Desfavorable,Ponderación.calidad.del.aire, Horas.de.Sol.medias.anuales.
 
+Como hemos visto al inicio, muchos de los valores que deberían ser numéricos están puestos de tipo character. Por lo tanto, antes de gestionar los valores extremos vamos a transformar dichas variables.
+
+```{r}     
+          
+data_cities$Carril.Bici <- as.numeric(data_cities$Carril.Bici)
+data_cities$Precios.alquiler <- as.numeric(data_cities$Precios.alquiler)
+data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km <- as.numeric(data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km)
+data_cities$Temperatura.mínima.media..ºC. <- as.numeric(data_cities$Temperatura.mínima.media..ºC.)
+data_cities$Precio.medio.vivienda..EUR.m2. <- as.numeric(data_cities$Precio.medio.vivienda..EUR.m2.)
+data_cities$X..días.calidad.del.aire.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Buena)
+data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km. <- as.numeric(data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km.)
+data_cities$X..días.calidad.del.aire.Razonablemente.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Razonablemente.Buena)
+data_cities$X..días.calidad.del.aire.Regular <- as.numeric(data_cities$X..días.calidad.del.aire.Regular)
+data_cities$X..días.calidad.del.aire.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Desfavorable)
+data_cities$X..días.calidad.del.aire.Muy.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Muy.Desfavorable)
+data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable)
+data_cities$Ponderación.calidad.del.aire <- as.numeric(data_cities$Ponderación.calidad.del.aire)
+data_cities$Horas.de.Sol.medias.anuales <- as.numeric(gsub("\\.", "", data_cities$Horas.de.Sol.medias.anuales))
+print(data_cities$Horas.de.Sol.medias.anuales)
+#data_cities$Horas.de.Sol.medias.anuales <- as.numeric(data_cities$Horas.de.Sol.medias.anuales)
+
+
+summary(data_cities)
+
+```
+
 Debido a la importancia que le voy a dar en este estudio, voy a descartar las ciudades de las que no tenemos métricas acerca de la calidad del aire.
 
 ```{r}
@@ -208,11 +236,17 @@ data_cities$Precios.alquiler <- with(data_cities, ifelse(Precios.alquiler == "N/
                                                     FUN = function(x) mean(x, na.rm = TRUE)),
                                                 Precios.alquiler))
 
+data_cities$Precio.medio.vivienda..EUR.m2. <- as.numeric(gsub("\\.", "", data_cities$Precio.medio.vivienda..EUR.m2.))
+
 data_cities$Precio.medio.vivienda..EUR.m2. <- with(data_cities, ifelse(Precio.medio.vivienda..EUR.m2. == "N/D",
                                               ave(as.numeric(Precio.medio.vivienda..EUR.m2.),
                                                   Provincia,
                                                   FUN = function(x) mean(x, na.rm = TRUE)),
-                                              Precio.medio.vivienda..EUR.m2.))
+                                              ifelse(as.numeric(Precio.medio.vivienda..EUR.m2.) < 100,
+                                            ave(as.numeric(Precio.medio.vivienda..EUR.m2.),
+                                              Provincia,
+                                              FUN = function(x) mean(x[x > 100], na.rm = TRUE)),
+                                              Precio.medio.vivienda..EUR.m2.)))
 
 
 
@@ -226,7 +260,10 @@ data_cities$Horas.de.Sol.medias.anuales <- with(data_cities, ifelse(Horas.de.Sol
                                               FUN = function(x) mean(x[x > 100], na.rm = TRUE)),
                                               Horas.de.Sol.medias.anuales)))
 
+print(data_cities$Precio.medio.vivienda..EUR.m2.)
 
+data_clean <- data_cities[complete.cases(data_cities), ]
+print(data_clean$Horas.de.Sol.medias.anuales)
 # Verificar si hay valores nulos por columna en el dataset
 nulos <- colSums(data_cities == "N/D", na.rm = TRUE)
 
@@ -237,27 +274,7 @@ print(nulos)
 
 # Gestión de valores extremos
 
-Como hemos visto al inicio, muchos de los valores que deberían ser numéricos están puestos de tipo character. Por lo tanto, antes de gestionar los valores extremos vamos a transformar dichas variables.
 
-```{r}     
-          
-data_cities$Carril.Bici <- as.numeric(data_cities$Carril.Bici)
-data_cities$Precios.alquiler <- as.numeric(data_cities$Precios.alquiler)
-data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km <- as.numeric(data_cities$Distancia.al.aeropuerto.internacional.más.cercano..km)
-data_cities$Temperatura.mínima.media..ºC. <- as.numeric(data_cities$Temperatura.mínima.media..ºC.)
-data_cities$Precio.medio.vivienda..EUR.m2. <- as.numeric(data_cities$Precio.medio.vivienda..EUR.m2.)
-data_cities$X..días.calidad.del.aire.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Buena)
-data_cities$X..días.calidad.del.aire.Razonablemente.Buena <- as.numeric(data_cities$X..días.calidad.del.aire.Razonablemente.Buena)
-data_cities$X..días.calidad.del.aire.Regular <- as.numeric(data_cities$X..días.calidad.del.aire.Regular)
-data_cities$X..días.calidad.del.aire.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Desfavorable)
-data_cities$X..días.calidad.del.aire.Muy.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Muy.Desfavorable)
-data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable <- as.numeric(data_cities$X..días.calidad.del.aire.Extremadamente.Desfavorable)
-data_cities$Ponderación.calidad.del.aire <- as.numeric(data_cities$Ponderación.calidad.del.aire)
-data_cities$Horas.de.Sol.medias.anuales <- as.numeric(data_cities$Horas.de.Sol.medias.anuales)
-
-summary(data_cities)
-
-```
 
 ```{r}
 
@@ -289,8 +306,103 @@ Por otro lado también tenemos diferencias muy sifnificativas en las distancias 
 4.1. Selección de los grupos de datos que se quieren analizar/comparar (p.
 ej., si se van a comparar grupos de datos, ¿cuáles son estos grupos y
 qué tipo de análisis se van a aplicar?)
+
+
+Las variables que se van a utilizar para este apartado de análisis son: 
+
+- Ponderación calidad del aire: Es importante considerarla, ya que la calidad del aire tiene un gran impacto en la salud y el bienestar de los trabajadores remotos.
+
+- Precios alquiler: Esta variable es importante para analizar el costo de vida en cada ciudad.
+
+- Precio medio vivienda (EUR/m2): Al igual que los precios de alquiler, el precio medio de la vivienda puede proporcionar información valiosa sobre el costo de vida en cada ciudad.
+
+- Distancia al aeropuerto internacional más cercano (km): Un alto porcentaje de trabajadores remotos o bien son extranjeros, o precisan viajar de vez en cuando a la oficina.
+
+- Carril Bici: Esta variable puede indicar la disponibilidad de infraestructura para el ciclismo y promover un medio de transporte saludable y respetuoso con el medio ambiente.
+
+- Horas de Sol medias: Estas horas de sol pueden tener un impacto en el estado de ánimo y la productividad de los trabajadores remotos.
+
+
+
+```{r}
+
+variables <- c("Ponderación.calidad.del.aire", "Precios.alquiler", "Precio.medio.vivienda..EUR.m2.",
+               "Distancia.al.aeropuerto.internacional.más.cercano..km.", "Carril.Bici", "Horas.de.Sol.medias.anuales")
+data_analisis <- data_cities[, variables]
+
+summary(data_analisis)
+
+```
+
+
 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
+
+
+```{r}
+
+data_analisis <- na.omit(data_analisis)
+print(data_analisis$Precios.alquiler)
+for (variable in data_analisis) {
+
+  shapiro.test(variable)
+  
+}
+
+# Convertir variables a numérico para tratar de corregir 
+data_analisis$Ponderación.calidad.del.aire <- as.numeric(data_analisis$Ponderación.calidad.del.aire)
+data_analisis$Precios.alquiler <- as.numeric(data_analisis$Precios.alquiler)
+data_analisis$Precio.medio.vivienda..EUR.m2. <- as.numeric(data_analisis$Precio.medio.vivienda..EUR.m2.)
+data_analisis$Distancia.al.aeropuerto.internacional.más.cercano..km. <- as.numeric(data_analisis$Distancia.al.aeropuerto.internacional.más.cercano..km.)
+data_analisis$Carril.Bici <- as.numeric(data_analisis$Carril.Bici)
+data_analisis$Horas.de.Sol.medias <- as.numeric(data_analisis$Horas.de.Sol.medias)
+
+
+# Prueba de homogeneidad de varianza
+
+
+leveneTest(data_analisis)
+
+
+```
+
+
+
 4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos.
 En función de los datos y el objetivo del estudio, aplicar pruebas de
 contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos
 tres métodos de análisis diferentes.
+
+
+```{r}
+
+data_analisis$Carril.Bici <- as.numeric(data_analisis$Carril.Bici)
+data_analisis$Precios.alquiler <- as.numeric(data_analisis$Precios.alquiler)
+
+# Prueba de contraste de hipótesis (t-test)
+t.test(data_analisis$Precios.alquiler ~ data_analisis$Carril.Bici)
+
+# Correlación de variables (coeficiente de correlación de Pearson)
+cor(data_analisis$Ponderación.calidad.del.aire, data_analisis$Precio.medio.vivienda..EUR.m2., method = "pearson")
+
+# Regresión lineal
+modelo_regresion <- lm(Precios.alquiler ~ Distancia.al.aeropuerto.internacional.más.cercano..km. + Carril.Bici + Horas.de.Sol.medias, data = data_analisis)
+summary(modelo_regresion)
+
+
+```
+
+
+# Resolución del problema
+
+Debido a problemas con la presencia de valores NA en un dataset no puedo llegar a una conclusión final con estos datos. Por lo tanto voy a plantear diferentes puntos de vista y análisis que tenía en mente.
+
+Lo he querido apoyar en tres factores fundamentales a la hora de elegir vivir en una ciudad determinada:
+
+- Evaluación de la calidad del aire: Si la variable "Ponderación calidad del aire" muestra diferencias significativas entre las ciudades, se pueden identificar las ciudades con la mejor y peor calidad del aire para tomar decisiones relacionadas con la ubicación del teletrabajo.
+
+- Análisis de precios: Comparando las variables "Precios alquiler" y "Precio medio vivienda (EUR/m2)", se puede determinar si hay una correlación entre los precios de alquiler y los precios de venta de viviendas en las ciudades. Esto puede ayudar a tomar decisiones sobre el tipo de vivienda a considerar en cada ciudad.
+
+- Accesibilidad y transporte: Evaluando la variable "Distancia al aeropuerto internacional más cercano (km)" y el dato de "Carril Bici", se puede analizar la disponibilidad y facilidad de transporte en las ciudades. Esto puede ser relevante para aquellos que requieren viajar con frecuencia o desean utilizar la bicicleta como medio de transporte.
+
+
+
